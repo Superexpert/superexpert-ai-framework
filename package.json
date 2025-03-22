@@ -1,0 +1,30 @@
+{
+  "name": "@superexpert-ai/framework",
+  "version": "0.1.0-alpha.0",
+  "description": "Platform classes for creating Superexpert.AI plugins",
+  "keywords": ["superexpert-ai"],
+  "repository": {
+    "type": "git",
+    "url": "superexpert-ai-framework"
+  },
+  "license": "MIT",
+  "author": "",
+  "main": "./dist/index.js",
+
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && npm pack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "react": "^19.0.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "typescript": "^5.8.2",
+    "prisma": "^6.5.0",
+    "@types/react": "^19"
+  }
+}
