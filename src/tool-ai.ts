@@ -12,7 +12,7 @@ export interface ToolAI {
 }
 
 export interface ToolPropertyAI {
-    type: 'string' | 'integer';
-    enum?: string[]; // Optional enum for predefined values
+    type:  'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'; // Define the type of the parameter
+    enum?: any[]; // Optional enum for predefined values
     description: string;
 }
