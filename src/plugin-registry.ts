@@ -8,6 +8,7 @@ import {
 } from './task-definition-types';
 import { User } from './user';
 import { ClientContext } from './client-context';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 
 
@@ -21,8 +22,9 @@ interface ServerToolParameter {
     name: string;
     description: string;
     parameters: ServerToolParameter[];
-    function: (this: { context: { user: { id: number } } }, ...args: any[]) => any; // Define 'this' type
+    function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
   }
+  
   
   const registeredTools: Record<string, ServerTool> = {};
   
@@ -31,12 +33,33 @@ interface ServerToolParameter {
   }
 
 
-  export function getServerTools() {
+  export function getServerToolList() {
     return Object.values(registeredTools).map(tool => ({
         id: tool.name,
         description: tool.description,
     }));
   }
+
+  export function getServerTools() {
+    return registeredTools;
+  }
+
+
+  export interface ServerToolContext {
+    user: {id: string, now: Date, timezone: string};
+    agent: { id: string; name: string };
+  }
+
+
+  export function callServerTool(toolName: string, context: ServerToolContext, ...args: any[]) {
+    const tool = registeredTools[toolName];
+    if (!tool) {
+      throw new Error(`Tool "${toolName}" not found.`);
+    }
+  
+    return tool.function.call(context, ...args);
+  }
+  
   
 
 

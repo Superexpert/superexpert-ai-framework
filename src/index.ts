@@ -8,6 +8,8 @@ export {
   getLLMModels,
   getLLMPlugin,
   getServerTools,
+  getServerToolList,
+  callServerTool,
   getServerDataTools,
   registerClientTool,
   registerTheme,
