@@ -1,21 +1,28 @@
 export { ClientContext } from "./client-context";
 export { ClientTaskDefinition } from "./client-task-definition";
 export {
-  getTheme,
-  getThemes,
-  getClientTools,
-  getLLMModel,
-  getLLMModels,
-  getLLMPlugin,
+  registerServerTool,
   getServerTools,
   getServerToolList,
   callServerTool,
-  getServerDataTools,
-  registerClientTool,
-  registerTheme,
+
   registerServerDataTool,
-  registerServerTool,
+  getServerDataTools,
+  getServerDataToolList,
+  callServerDataTool,
+
+  registerClientTool,
+  getClientTools,
+  getClientToolList,
+  callClientTool,
+
+  registerTheme,
+  getTheme,
+  getThemeList,
+
   registerLLM,
+  getLLM,
+  getLLMList,
 } from "./plugin-registry";
 export { MessageAI } from "./message-ai";
 export { ToolCall } from "./tool-call";
@@ -26,5 +33,3 @@ export { ToolAI, ToolPropertyAI } from "./tool-ai";
 export { ChunkAI } from "./chunk-ai";
 export { User } from "./user";
 export { LLMModelDefinition } from "./llm-model-definition";
-
-export { helloWorld } from "./hello-world";
