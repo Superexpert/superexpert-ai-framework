@@ -168,6 +168,10 @@ export function getClientTools() {
   return registeredClientTools;
 }
 
+export function getClientTool(id:string) {
+    return registeredClientTools[id];
+}
+
 export interface ClientToolContext {
   user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };

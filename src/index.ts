@@ -15,6 +15,7 @@ export {
 
   registerClientTool,
   getClientTools,
+  getClientTool,
   getClientToolList,
   ClientToolContext,
   callClientTool,
