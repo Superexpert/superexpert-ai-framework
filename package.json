@@ -1,6 +1,6 @@
 {
   "name": "@superexpert-ai/framework",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Platform classes for creating Superexpert.AI plugins",
   "keywords": [
     "superexpert-ai"
@@ -23,7 +23,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.MD"],
+  "files": [
+    "dist",
+    "README.MD"
+  ],
   "scripts": {
     "build": "tsc && npm pack",
     "bump:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha",
