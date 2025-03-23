@@ -29,7 +29,6 @@ export {
 } from "./plugin-registry";
 export { MessageAI } from "./message-ai";
 export { ToolCall } from "./tool-call";
-export { ClientToolsBase, ServerDataBase, ServerToolsBase, Tool, ToolParameter } from "./task-definition-types";
 export { LLMModelConfiguration } from "./llm-model-configuration";
 export { LLMAdapter } from "./llm-adapter";
 export { ToolAI, ToolPropertyAI } from "./tool-ai";

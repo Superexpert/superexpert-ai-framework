@@ -1,13 +1,6 @@
 import { LLMModelDefinition } from "./llm-model-definition";
 import { LLMModelConfiguration } from "./llm-model-configuration";
 import { LLMAdapter } from "./llm-adapter";
-import {
-  ServerDataBase,
-  ServerToolsBase,
-  ClientToolsBase,
-} from "./task-definition-types";
-import { User } from "./user";
-import { ClientContext } from "./client-context";
 import { MessageAI } from "./message-ai";
 
 
@@ -72,7 +65,7 @@ export function getServerTools() {
 }
 
 export interface ServerToolContext {
-  user: { id: string; now: Date; timezone: string };
+  user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
 }
@@ -125,7 +118,7 @@ export function getServerDataTools() {
 }
 
 export interface ServerDataToolContext {
-  user: { id: string; now: Date; timezone: string };
+  user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
 }
@@ -176,7 +169,7 @@ export function getClientTools() {
 }
 
 export interface ClientToolContext {
-  user: { id: string; now: Date; timezone: string };
+  user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
 }
