@@ -7,8 +7,10 @@ import { ClientToolContext } from "./client-tool-context";
 
 interface ToolParameter {
     name: string;
+    type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'; // Define the type of the parameter
     description: string;
-    enum?: string[]; // Optional enum of allowed values
+    required?: boolean | true; // Optional, defaults to true
+    enum?: any[]; // Optional enum of allowed values
   }
   
  
@@ -19,6 +21,8 @@ interface ToolParameter {
  *
  * This function takes the parameters defined in the server tool and the args
  * passed to the tool, and reorders the args to match the order of the parameters.
+ * 
+ * Necessary because some LLMs (ahem, Gemini) do not always send args in right order.
  */
 function reorderArgs(
   parameters: ToolParameter[],
@@ -45,7 +49,7 @@ function reorderArgs(
 interface ServerTool {
     name: string;
     description: string;
-    parameters: ToolParameter[];
+    parameters?: ToolParameter[];
     function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
   }
 
@@ -84,7 +88,7 @@ export function callServerTool(
   }
 
   // Re-order args based on the order defined in tool.parameters
-  const orderedArgs = reorderArgs(tool.parameters, args);
+  const orderedArgs = reorderArgs(tool.parameters || [], args);
 
   return tool.function.call(context, ...orderedArgs);
 }
@@ -104,7 +108,7 @@ export function callServerTool(
 interface ServerDataTool {
     name: string;
     description: string;
-    parameters: ToolParameter[];
+    parameters?: ToolParameter[];
     function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
   }
  
@@ -143,7 +147,7 @@ export function callServerDataTool(
   }
 
   // Re-order args based on the order defined in tool.parameters
-  const orderedArgs = reorderArgs(tool.parameters, args);
+  const orderedArgs = reorderArgs(tool.parameters || [], args);
 
   return tool.function.call(context, ...orderedArgs);
 }
@@ -161,7 +165,7 @@ export function callServerDataTool(
 interface ClientTool {
     name: string;
     description: string;
-    parameters: ToolParameter[];
+    parameters?: ToolParameter[];
     function: (this: ClientToolContext, ...args: any[]) => any; // Define 'this' type
   }
 
@@ -199,7 +203,7 @@ export function callClientTool(
   }
 
   // Re-order args based on the order defined in tool.parameters
-  const orderedArgs = reorderArgs(tool.parameters, args);
+  const orderedArgs = reorderArgs(tool.parameters || [], args);
 
   return tool.function.call(context, ...orderedArgs);
 }
