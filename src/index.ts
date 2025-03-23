@@ -25,7 +25,7 @@ export {
 
   registerLLM,
   getLLM,
-  getLLMList,
+  getLLMDefinitions,
 } from "./plugin-registry";
 export { MessageAI } from "./message-ai";
 export { ToolCall } from "./tool-call";

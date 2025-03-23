@@ -241,11 +241,8 @@ export function registerLLM(llm: LLM) {
   registeredLLMs[llm.definition.id] = llm;
 }
 
-export function getLLMList() {
-  return Object.values(registeredLLMs).map((llm) => ({
-    id: llm.definition.id,
-    description: llm.definition.description,
-  }));
+export function getLLMDefinitions() {
+  return Object.values(registeredLLMs).map(llm => llm.definition);
 }
 
 
