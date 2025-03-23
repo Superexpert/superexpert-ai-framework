@@ -2,29 +2,42 @@
   "name": "@superexpert-ai/framework",
   "version": "0.1.0-alpha.0",
   "description": "Platform classes for creating Superexpert.AI plugins",
-  "keywords": ["superexpert-ai"],
+  "keywords": [
+    "superexpert-ai"
+  ],
   "repository": {
     "type": "git",
-    "url": "superexpert-ai-framework"
+    "url": "https://github.com/superexpert/superexpert-ai-framework"
   },
   "license": "MIT",
-  "author": "",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
+  "author": "Stephen Walther",
   "main": "./dist/index.js",
-
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.MD"],
   "scripts": {
     "build": "tsc && npm pack",
+    "bump:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@prisma/client": "^6.5.0",
     "react": "^19.0.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "user": "^0.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.11",
-    "typescript": "^5.8.2",
-    "prisma": "^6.5.0",
-    "@types/react": "^19"
+    "@types/react": "^19",
+    "typescript": "^5.8.2"
   }
 }

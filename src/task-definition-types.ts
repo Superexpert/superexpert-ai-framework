@@ -1,5 +1,4 @@
 import { User } from './user';
-import { PrismaClient } from '@prisma/client';
 import { ClientContext } from './client-context';
 import 'reflect-metadata';
 
@@ -94,7 +93,6 @@ export abstract class ServerDataBase {
     constructor(
         protected user: User,
         protected agent: {id:string, name: string},
-        protected db: PrismaClient
     ) {}
 }
 
@@ -102,7 +100,6 @@ export abstract class ServerToolsBase {
     constructor(
         protected user: User,
         protected agent: {id:string, name: string},
-        protected db: PrismaClient
     ) {}
 }
 

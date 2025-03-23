@@ -7,8 +7,42 @@ import {
     ClientToolsBase,
 } from './task-definition-types';
 import { User } from './user';
-import { PrismaClient } from '@prisma/client';
 import { ClientContext } from './client-context';
+
+
+
+interface ServerToolParameter {
+    name: string;
+    description: string;
+    enum?: string[]; // Optional enum of allowed values
+  }
+  
+  interface ServerTool {
+    name: string;
+    description: string;
+    parameters: ServerToolParameter[];
+    function: (this: { context: { user: { id: number } } }, ...args: any[]) => any; // Define 'this' type
+  }
+  
+  const registeredTools: Record<string, ServerTool> = {};
+  
+  export function registerServerTool(tool: ServerTool) {
+    registeredTools[tool.name] = tool;
+  }
+
+
+  export function getServerTools() {
+    return Object.values(registeredTools).map(tool => ({
+        id: tool.name,
+        description: tool.description,
+    }));
+  }
+  
+
+
+
+
+
 
 // Create a class-based singleton registry to ensure proper initialization and sharing
 class Registry {
@@ -89,13 +123,11 @@ export function registerTheme(theme: Theme) {
 type ServerDataToolsConstructor = new (
     user: User,
     agent: { id: string; name: string },
-    db: PrismaClient
 ) => ServerDataBase;
 
 type ServerToolsConstructor = new (
     user: User,
     agent: { id: string; name: string },
-    db: PrismaClient
 ) => ServerToolsBase;
 
 type ClientToolsConstructor = new (
@@ -128,16 +160,16 @@ export function registerServerDataTool(plugin: ServerDataToolsConstructor) {
    }
 }
 
-export function registerServerTool(plugin: ServerToolsConstructor) {
-   // Get constructor name
-   const pluginName = plugin.name;
+// export function registerServerTool(plugin: ServerToolsConstructor) {
+//    // Get constructor name
+//    const pluginName = plugin.name;
     
-   // Check if a tool with the same name is already registered
-   const exists = registry.serverTools.some(tool => tool.name === pluginName);
-   if (!exists) {
-       registry.serverTools.push(plugin);
-   }
-}
+//    // Check if a tool with the same name is already registered
+//    const exists = registry.serverTools.some(tool => tool.name === pluginName);
+//    if (!exists) {
+//        registry.serverTools.push(plugin);
+//    }
+// }
 
 
 export function registerClientTool(plugin: ClientToolsConstructor) {
@@ -171,6 +203,6 @@ export function getServerDataTools(): ServerDataToolsConstructor[] {
     return registry.serverDataTools;
 }
 
-export function getServerTools(): ServerToolsConstructor[] {
-    return registry.serverTools;
-}
+// export function getServerTools(): ServerToolsConstructor[] {
+//     return registry.serverTools;
+// }
