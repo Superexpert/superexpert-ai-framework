@@ -1,4 +1,4 @@
-export { ClientContext } from "./client-context";
+export { ClientToolContext } from "./client-tool-context";
 export { ClientTaskDefinition } from "./client-task-definition";
 export {
   registerServerTool,
@@ -17,7 +17,6 @@ export {
   getClientTools,
   getClientTool,
   getClientToolList,
-  ClientToolContext,
   callClientTool,
 
   registerTheme,

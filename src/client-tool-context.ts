@@ -8,7 +8,7 @@ export type ShowModalType = (
     }) => ReactElement
 ) => void;
 
-export class ClientContext {
+export class ClientToolContext {
     constructor(
         public tasks: ClientTaskDefinition[],
         public getCurrentTask: () => ClientTaskDefinition,

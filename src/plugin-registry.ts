@@ -2,6 +2,7 @@ import { LLMModelDefinition } from "./llm-model-definition";
 import { LLMModelConfiguration } from "./llm-model-configuration";
 import { LLMAdapter } from "./llm-adapter";
 import { MessageAI } from "./message-ai";
+import { ClientToolContext } from "./client-tool-context";
 
 
 interface ToolParameter {
@@ -10,14 +11,9 @@ interface ToolParameter {
     enum?: string[]; // Optional enum of allowed values
   }
   
-  interface Tool {
-    name: string;
-    description: string;
-    parameters: ToolParameter[];
-    function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
-  }
-  
-
+ 
+ 
+ 
 /************
  * Utility function to reorder arguments based on the parameter definitions
  *
@@ -46,10 +42,17 @@ function reorderArgs(
  * such as database queries, API calls, etc.
  */
 
+interface ServerTool {
+    name: string;
+    description: string;
+    parameters: ToolParameter[];
+    function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
+  }
 
-const registeredServerTools: Record<string, Tool> = {};
 
-export function registerServerTool(tool: Tool) {
+const registeredServerTools: Record<string, ServerTool> = {};
+
+export function registerServerTool(tool: ServerTool) {
   registeredServerTools[tool.name] = tool;
 }
 
@@ -98,11 +101,17 @@ export function callServerTool(
  *
  */
 
+interface ServerDataTool {
+    name: string;
+    description: string;
+    parameters: ToolParameter[];
+    function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
+  }
+ 
 
+const registeredServerDataTools: Record<string, ServerDataTool> = {};
 
-const registeredServerDataTools: Record<string, Tool> = {};
-
-export function registerServerDataTool(tool: Tool) {
+export function registerServerDataTool(tool: ServerDataTool) {
   registeredServerDataTools[tool.name] = tool;
 }
 
@@ -149,11 +158,17 @@ export function callServerDataTool(
  * as opening a modal form.
  */
 
+interface ClientTool {
+    name: string;
+    description: string;
+    parameters: ToolParameter[];
+    function: (this: ClientToolContext, ...args: any[]) => any; // Define 'this' type
+  }
 
 
-const registeredClientTools: Record<string, Tool> = {};
+const registeredClientTools: Record<string, ClientTool> = {};
 
-export function registerClientTool(tool: Tool) {
+export function registerClientTool(tool: ClientTool) {
   registeredClientTools[tool.name] = tool;
 }
 
@@ -172,11 +187,6 @@ export function getClientTool(id:string) {
     return registeredClientTools[id];
 }
 
-export interface ClientToolContext {
-  user: { id: string; now: Date; timeZone: string };
-  agent: { id: string; name: string };
-  messages: MessageAI[];
-}
 
 export function callClientTool(
   toolName: string,
