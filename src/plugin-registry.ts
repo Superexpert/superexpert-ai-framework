@@ -8,8 +8,35 @@ import {
 } from './task-definition-types';
 import { User } from './user';
 import { ClientContext } from './client-context';
-import { hasUncaughtExceptionCaptureCallback } from 'process';
 
+
+/************
+ * Utility function to reorder arguments based on the parameter definitions
+ * 
+ * This function takes the parameters defined in the server tool and the args
+ * passed to the tool, and reorders the args to match the order of the parameters.
+ */
+function reorderArgs(parameters:ServerToolParameter[], args: Record<string, any>) {
+    return parameters.map((parameter) => {
+        if (!(parameter.name in args)) {
+          throw new Error(`Missing argument for parameter "${parameter.name}"`);
+        }
+        return args[parameter.name];
+      });
+}
+
+
+
+/************
+ * Server Tools
+ * 
+ * These are tools that run on the server and can be called by the client.
+ * They are registered in the plugin registry and can be called by name.
+ * 
+ * The server tools are used to perform actions that require server-side processing,
+ * such as database queries, API calls, etc.
+ */
+  
 
 
 interface ServerToolParameter {
@@ -51,16 +78,28 @@ interface ServerToolParameter {
   }
 
 
-  export function callServerTool(toolName: string, context: ServerToolContext, ...args: any[]) {
+  export function callServerTool(
+    toolName: string, 
+    context: ServerToolContext, 
+    args: Record<string, any>
+  ) {
     const tool = registeredTools[toolName];
     if (!tool) {
       throw new Error(`Tool "${toolName}" not found.`);
     }
   
-    return tool.function.call(context, ...args);
+    // Re-order args based on the order defined in tool.parameters
+    const orderedArgs = reorderArgs(tool.parameters, args);
+    
+    return tool.function.call(context, ...orderedArgs);
   }
   
   
+
+
+
+
+
 
 
 
