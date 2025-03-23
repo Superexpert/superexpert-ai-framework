@@ -4,16 +4,19 @@ export {
   registerServerTool,
   getServerTools,
   getServerToolList,
+  ServerToolContext,
   callServerTool,
 
   registerServerDataTool,
   getServerDataTools,
   getServerDataToolList,
+  ServerDataToolContext,
   callServerDataTool,
 
   registerClientTool,
   getClientTools,
   getClientToolList,
+  ClientToolContext,
   callClientTool,
 
   registerTheme,
