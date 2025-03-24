@@ -3,34 +3,36 @@ import { LLMModelConfiguration } from "./llm-model-configuration";
 import { LLMAdapter } from "./llm-adapter";
 import { MessageAI } from "./message-ai";
 import { ClientToolContext } from "./client-tool-context";
-
+import { Prisma, PrismaClient } from "@prisma/client";
 
 interface ToolParameter {
-    name: string;
-    type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'; // Define the type of the parameter
-    description: string;
-    required?: boolean | true; // Optional, defaults to true
-    enum?: any[]; // Optional enum of allowed values
-  }
-  
- 
- 
- 
+  name: string;
+  type:
+    | "string"
+    | "number"
+    | "integer"
+    | "boolean"
+    | "array"
+    | "object"
+    | "null"; // Define the type of the parameter
+  description: string;
+  required?: boolean | true; // Optional, defaults to true
+  enum?: any[]; // Optional enum of allowed values
+  default?: any; // Optional default value
+}
+
 /************
  * Utility function to reorder arguments based on the parameter definitions
  *
  * This function takes the parameters defined in the server tool and the args
  * passed to the tool, and reorders the args to match the order of the parameters.
- * 
+ *
  * Necessary because some LLMs (ahem, Gemini) do not always send args in right order.
  */
-function reorderArgs(
-  parameters: ToolParameter[],
-  args: Record<string, any>
-) {
+function reorderArgs(parameters: ToolParameter[], args: Record<string, any>) {
   return parameters.map((parameter) => {
     if (!(parameter.name in args) && parameter.required !== false) {
-    // If the parameter is not in args and is required, throw an error
+      // If the parameter is not in args and is required, throw an error
       throw new Error(`Missing argument for parameter "${parameter.name}"`);
     }
     return args[parameter.name];
@@ -48,12 +50,11 @@ function reorderArgs(
  */
 
 interface ServerTool {
-    name: string;
-    description: string;
-    parameters?: ToolParameter[];
-    function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
-  }
-
+  name: string;
+  description: string;
+  parameters?: ToolParameter[];
+  function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
+}
 
 const registeredServerTools: Record<string, ServerTool> = {};
 
@@ -76,6 +77,7 @@ export interface ServerToolContext {
   user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
+  db: PrismaClient;
 }
 
 export function callServerTool(
@@ -94,10 +96,6 @@ export function callServerTool(
   return tool.function.call(context, ...orderedArgs);
 }
 
-
-
-
-
 /************
  * Server Data Tools
  *
@@ -107,12 +105,11 @@ export function callServerTool(
  */
 
 interface ServerDataTool {
-    name: string;
-    description: string;
-    parameters?: ToolParameter[];
-    function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
-  }
- 
+  name: string;
+  description: string;
+  parameters?: ToolParameter[];
+  function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
+}
 
 const registeredServerDataTools: Record<string, ServerDataTool> = {};
 
@@ -135,6 +132,7 @@ export interface ServerDataToolContext {
   user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
+  db: PrismaClient;
 }
 
 export function callServerDataTool(
@@ -153,9 +151,6 @@ export function callServerDataTool(
   return tool.function.call(context, ...orderedArgs);
 }
 
-
-
-
 /************
  * Client Tools
  *
@@ -164,12 +159,11 @@ export function callServerDataTool(
  */
 
 interface ClientTool {
-    name: string;
-    description: string;
-    parameters?: ToolParameter[];
-    function: (this: ClientToolContext, ...args: any[]) => any; // Define 'this' type
-  }
-
+  name: string;
+  description: string;
+  parameters?: ToolParameter[];
+  function: (this: ClientToolContext, ...args: any[]) => any; // Define 'this' type
+}
 
 const registeredClientTools: Record<string, ClientTool> = {};
 
@@ -188,10 +182,9 @@ export function getClientTools() {
   return registeredClientTools;
 }
 
-export function getClientTool(id:string) {
-    return registeredClientTools[id];
+export function getClientTool(id: string) {
+  return registeredClientTools[id];
 }
-
 
 export function callClientTool(
   toolName: string,
@@ -233,12 +226,11 @@ export function getTheme(id: string): Theme {
 }
 
 export function getThemeList() {
-    return Object.values(registeredThemes).map((theme) => ({
-        id: theme.name,
-        description: theme.description,
-      }));
+  return Object.values(registeredThemes).map((theme) => ({
+    id: theme.name,
+    description: theme.description,
+  }));
 }
-
 
 /************
  * LLMs
@@ -247,12 +239,12 @@ export function getThemeList() {
  */
 
 export interface LLM {
-      definition: LLMModelDefinition;
-      adapter: new (
-        modelId: string,
-        modelConfiguration?: LLMModelConfiguration
-      ) => LLMAdapter;
-    }
+  definition: LLMModelDefinition;
+  adapter: new (
+    modelId: string,
+    modelConfiguration?: LLMModelConfiguration
+  ) => LLMAdapter;
+}
 
 const registeredLLMs: Record<string, LLM> = {};
 
@@ -261,15 +253,12 @@ export function registerLLM(llm: LLM) {
 }
 
 export function getLLMDefinitions() {
-  return Object.values(registeredLLMs).map(llm => llm.definition);
+  return Object.values(registeredLLMs).map((llm) => llm.definition);
 }
-
 
 export function getLLM(id: string): LLM | undefined {
   return registeredLLMs[id];
 }
-
-
 
 // // Create a class-based singleton registry to ensure proper initialization and sharing
 // class Registry {
