@@ -29,7 +29,8 @@ function reorderArgs(
   args: Record<string, any>
 ) {
   return parameters.map((parameter) => {
-    if (!(parameter.name in args && parameter.required !== false)) {
+    if (!(parameter.name in args) && parameter.required !== false) {
+    // If the parameter is not in args and is required, throw an error
       throw new Error(`Missing argument for parameter "${parameter.name}"`);
     }
     return args[parameter.name];
