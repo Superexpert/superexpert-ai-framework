@@ -3,7 +3,7 @@ import { LLMModelConfiguration } from "./llm-model-configuration";
 import { LLMAdapter } from "./llm-adapter";
 import { MessageAI } from "./message-ai";
 import { ClientToolContext } from "./client-tool-context";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 interface ToolParameter {
   name: string;
@@ -20,6 +20,29 @@ interface ToolParameter {
   enum?: any[]; // Optional enum of allowed values
   default?: any; // Optional default value
 }
+
+const sortTools = (
+  a: { id: string; category: string | undefined },
+  b: { id: string; category: string | undefined }
+) => {
+  // Define the order for categories
+  const categoryOrder = (category?: string) => {
+    if (category === "system") return 0; // 'system' category has highest priority
+    if (category === undefined) return 2; // Undefined categories have lowest priority
+    return 1; // All other categories
+  };
+
+  const orderA = categoryOrder(a.category);
+  const orderB = categoryOrder(b.category);
+
+  // Compare based on category order
+  if (orderA !== orderB) {
+    return orderA - orderB;
+  }
+
+  // If categories are the same, sort by 'id'
+  return a.id.localeCompare(b.id);
+};
 
 /************
  * Utility function to reorder arguments based on the parameter definitions
@@ -51,6 +74,7 @@ function reorderArgs(parameters: ToolParameter[], args: Record<string, any>) {
 
 interface ServerTool {
   name: string;
+  category?: string;
   description: string;
   parameters?: ToolParameter[];
   function: (this: ServerToolContext, ...args: any[]) => any; // Define 'this' type
@@ -63,10 +87,13 @@ export function registerServerTool(tool: ServerTool) {
 }
 
 export function getServerToolList() {
-  return Object.values(registeredServerTools).map((tool) => ({
-    id: tool.name,
-    description: tool.description,
-  }));
+  return Object.values(registeredServerTools)
+    .map((tool) => ({
+      id: tool.name,
+      category: tool.category,
+      description: tool.description,
+    }))
+    .sort(sortTools); // Sort the tools by category and id
 }
 
 export function getServerTools() {
@@ -105,6 +132,7 @@ export function callServerTool(
 
 interface ServerDataTool {
   name: string;
+  category?: string; // Optional category for sorting
   description: string;
   parameters?: ToolParameter[];
   function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
@@ -117,10 +145,13 @@ export function registerServerDataTool(tool: ServerDataTool) {
 }
 
 export function getServerDataToolList() {
-  return Object.values(registeredServerDataTools).map((tool) => ({
-    id: tool.name,
-    description: tool.description,
-  }));
+  return Object.values(registeredServerDataTools)
+    .map((tool) => ({
+      id: tool.name,
+      category: tool.category,
+      description: tool.description,
+    }))
+    .sort(sortTools); // Sort the tools by category and id
 }
 
 export function getServerDataTools() {
@@ -159,6 +190,7 @@ export function callServerDataTool(
 
 interface ClientTool {
   name: string;
+  category?: string; // Optional category for sorting
   description: string;
   parameters?: ToolParameter[];
   function: (this: ClientToolContext, ...args: any[]) => any; // Define 'this' type
@@ -171,10 +203,13 @@ export function registerClientTool(tool: ClientTool) {
 }
 
 export function getClientToolList() {
-  return Object.values(registeredClientTools).map((tool) => ({
-    id: tool.name,
-    description: tool.description,
-  }));
+  return Object.values(registeredClientTools)
+    .map((tool) => ({
+      id: tool.name,
+      category: tool.category,
+      description: tool.description,
+    }))
+    .sort(sortTools); // Sort the tools by category and id
 }
 
 export function getClientTools() {
@@ -258,162 +293,3 @@ export function getLLMDefinitions() {
 export function getLLM(id: string): LLM | undefined {
   return registeredLLMs[id];
 }
-
-// // Create a class-based singleton registry to ensure proper initialization and sharing
-// class Registry {
-//   private static instance: Registry;
-//   public llms: Record<string, LLMPlugin> = {};
-//   public serverDataTools: ServerDataToolsConstructor[] = [];
-//   public serverTools: ServerToolsConstructor[] = [];
-//   public clientTools: ClientToolsConstructor[] = [];
-//   public themes: Record<string, Theme> = {};
-
-//   private constructor() {}
-
-//   public static getInstance(): Registry {
-//     if (!Registry.instance) {
-//       Registry.instance = new Registry();
-//     }
-//     return Registry.instance;
-//   }
-// }
-
-// // Get the singleton registry
-// const getRegistry = () => {
-//   // Use global for server-side persistence
-//   if (typeof window === "undefined") {
-//     if (!global._registry) {
-//       global._registry = Registry.getInstance();
-//     }
-//     return global._registry;
-//   }
-
-//   // Use module-level singleton for client-side
-//   return Registry.getInstance();
-// };
-
-// // Add this to the global type
-// declare global {
-//   // eslint-disable-next-line no-var
-//   var _registry: Registry | undefined;
-// }
-
-// // Export a consistent registry reference
-// const registry = getRegistry();
-
-// /*******
-//  * Themes
-//  */
-// type CSSModule = { readonly [key: string]: string };
-// export type Theme = {
-//   id: string;
-//   name: string;
-//   theme: CSSModule;
-// };
-
-// export function registerTheme(theme: Theme) {
-//   if (registry.themes[theme.id]) {
-//     return;
-//   }
-//   registry.themes[theme.id] = theme;
-// }
-
-// export function getTheme(id: string): CSSModule {
-//   return registry.themes[id].theme;
-// }
-
-// export function getThemes() {
-//   return Object.values(registry.themes);
-// }
-
-// /************
-//  * Tools
-//  */
-
-// type ServerDataToolsConstructor = new (
-//   user: User,
-//   agent: { id: string; name: string }
-// ) => ServerDataBase;
-
-// type ServerToolsConstructor = new (
-//   user: User,
-//   agent: { id: string; name: string }
-// ) => ServerToolsBase;
-
-// type ClientToolsConstructor = new (
-//   clientContext: ClientContext
-// ) => ClientToolsBase;
-
-// export interface LLMPlugin {
-//   definition: LLMModelDefinition;
-//   adapter: new (
-//     modelId: string,
-//     modelConfiguration?: LLMModelConfiguration
-//   ) => LLMAdapter;
-// }
-
-// export function registerLLM(plugin: LLMPlugin) {
-//   if (registry.llms[plugin.definition.id]) {
-//     return;
-//   }
-//   registry.llms[plugin.definition.id] = plugin;
-// }
-
-// export function registerServerDataTool(plugin: ServerDataToolsConstructor) {
-//   // Get constructor name
-//   const pluginName = plugin.name;
-
-//   // Check if a tool with the same name is already registered
-//   const exists = registry.serverDataTools.some(
-//     (tool) => tool.name === pluginName
-//   );
-//   if (!exists) {
-//     registry.serverDataTools.push(plugin);
-//   }
-// }
-
-// // export function registerServerTool(plugin: ServerToolsConstructor) {
-// //    // Get constructor name
-// //    const pluginName = plugin.name;
-
-// //    // Check if a tool with the same name is already registered
-// //    const exists = registry.serverTools.some(tool => tool.name === pluginName);
-// //    if (!exists) {
-// //        registry.serverTools.push(plugin);
-// //    }
-// // }
-
-// export function registerClientTool(plugin: ClientToolsConstructor) {
-//   // Get constructor name
-//   const pluginName = plugin.name;
-
-//   // Check if a tool with the same name is already registered
-//   const exists = registry.clientTools.some((tool) => tool.name === pluginName);
-//   if (!exists) {
-//     registry.clientTools.push(plugin);
-//   }
-// }
-
-// export function getLLMPlugin(modelId: string): LLMPlugin | undefined {
-//   return registry.llms[modelId];
-// }
-
-// export function getLLMModels(): LLMModelDefinition[] {
-//   return Object.values(registry.llms).map((plugin) => plugin.definition);
-// }
-
-// export function getLLMModel(id: string): LLMModelDefinition | undefined {
-//   return registry.llms[id].definition;
-// }
-
-// export function getClientTools(): ClientToolsConstructor[] {
-//   return registry.clientTools;
-// }
-
-// export function getServerDataTools(): ServerDataToolsConstructor[] {
-//   return registry.serverDataTools;
-// }
-
-// // export function getServerTools(): ServerToolsConstructor[] {
-// //     return registry.serverTools;
-// // }
