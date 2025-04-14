@@ -262,7 +262,7 @@ export function getTheme(id: string): Theme {
 
 export function getThemeList() {
   return Object.values(registeredThemes).map((theme) => ({
-    id: theme.name,
+    id: theme.id,
     name: theme.name,
     imagePreview: theme.imagePreview,
     description: theme.description,
