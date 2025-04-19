@@ -7,11 +7,11 @@ export {
   ServerToolContext,
   callServerTool,
 
-  registerServerDataTool,
-  getServerDataTools,
-  getServerDataToolList,
-  ServerDataToolContext,
-  callServerDataTool,
+  registerContextTool,
+  getContextTools,
+  getContextToolList,
+  ContextToolContext,
+  callContextTool,
 
   registerClientTool,
   getClientTools,

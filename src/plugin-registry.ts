@@ -123,29 +123,29 @@ export function callServerTool(
 }
 
 /************
- * Server Data Tools
+ * Context Tools
  *
  * These are tools that run on the server that provide additional instructions.
  * They are registered in the plugin registry and can be called by name.
  *
  */
 
-interface ServerDataTool {
+interface ContextTool {
   name: string;
   category?: string; // Optional category for sorting
   description: string;
   parameters?: ToolParameter[];
-  function: (this: ServerDataToolContext, ...args: any[]) => any; // Define 'this' type
+  function: (this: ContextToolContext, ...args: any[]) => any; // Define 'this' type
 }
 
-const registeredServerDataTools: Record<string, ServerDataTool> = {};
+const registeredContextTools: Record<string, ContextTool> = {};
 
-export function registerServerDataTool(tool: ServerDataTool) {
-  registeredServerDataTools[tool.name] = tool;
+export function registerContextTool(tool: ContextTool) {
+  registeredContextTools[tool.name] = tool;
 }
 
-export function getServerDataToolList() {
-  return Object.values(registeredServerDataTools)
+export function getContextToolList() {
+  return Object.values(registeredContextTools)
     .map((tool) => ({
       id: tool.name,
       category: tool.category,
@@ -154,25 +154,25 @@ export function getServerDataToolList() {
     .sort(sortTools); // Sort the tools by category and id
 }
 
-export function getServerDataTools() {
-  return registeredServerDataTools;
+export function getContextTools() {
+  return registeredContextTools;
 }
 
-export interface ServerDataToolContext {
+export interface ContextToolContext {
   user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   messages: MessageAI[];
   db: PrismaClient;
 }
 
-export function callServerDataTool(
+export function callContextTool(
   toolName: string,
-  context: ServerDataToolContext,
+  context: ContextToolContext,
   args: Record<string, any>
 ) {
-  const tool = registeredServerDataTools[toolName];
+  const tool = registeredContextTools[toolName];
   if (!tool) {
-    throw new Error(`Tool "${toolName}" not found.`);
+    throw new Error(`Context Tool "${toolName}" not found.`);
   }
 
   // Re-order args based on the order defined in tool.parameters
