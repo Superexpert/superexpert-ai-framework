@@ -27,7 +27,7 @@
     "README.MD"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist && tsc",
     "prepublishOnly": "npm run build",
     "release:patch": "npm run build && npm version patch -m \"chore(release): %s\" && npm publish",
     "release:minor": "npm run build && npm version minor -m \"feat!: %s\" && npm publish",
