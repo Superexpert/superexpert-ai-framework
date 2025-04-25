@@ -1,6 +1,6 @@
 {
   "name": "@superexpert-ai/framework",
-  "version": "0.1.0-alpha.20",
+  "version": "1.0.0",
   "description": "Platform classes for creating Superexpert.AI plugins",
   "keywords": [
     "superexpert-ai"
@@ -11,8 +11,7 @@
   },
   "license": "MIT",
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "author": "Stephen Walther",
   "main": "./dist/index.js",
@@ -28,9 +27,12 @@
     "README.MD"
   ],
   "scripts": {
-    "build": "tsc && npm pack",
-    "bump:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
+    "release:patch": "npm run build && npm version patch -m \"chore(release): %s\" && npm publish",
+    "release:minor": "npm run build && npm version minor -m \"feat!: %s\" && npm publish",
+    "release:major": "npm run build && npm version major -m \"feat!: %s\" && npm publish",
+    "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "peerDependencies": {
