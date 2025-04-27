@@ -1,8 +1,8 @@
-import { LLMModelDefinition } from "./llm-model-definition";
-import { LLMModelConfiguration } from "./llm-model-configuration";
-import { LLMAdapter } from "./llm-adapter";
-import { MessageAI } from "./message-ai";
-import { ClientToolContext } from "./client-tool-context";
+import { LLMModelDefinition } from "./llm-model-definition.js";
+import { LLMModelConfiguration } from "./llm-model-configuration.js";
+import { LLMAdapter } from "./llm-adapter.js";
+import { MessageAI } from "./message-ai.js";
+import { ClientToolContext } from "./client-tool-context.js";
 import { PrismaClient } from "@prisma/client";
 
 interface ToolParameter {

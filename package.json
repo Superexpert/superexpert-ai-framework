@@ -14,23 +14,23 @@
     "access": "public"
   },
   "author": "Stephen Walther",
+  "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
-  "type": "module",
   "files": [
     "dist",
     "README.MD"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist",
+    "build": "rimraf dist && tsup",
     "prepublishOnly": "npm run build",
     "release:patch": "npm run build && npm version patch -m \"chore(release): %s\" && npm publish",
     "release:minor": "npm run build && npm version minor -m \"feat!: %s\" && npm publish",

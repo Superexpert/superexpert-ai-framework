@@ -1,7 +1,7 @@
-import { MessageAI } from './message-ai';
-import { ToolAI } from './tool-ai';
-import { ChunkAI } from './chunk-ai';
-import { LLMModelConfiguration } from './llm-model-configuration';
+import { MessageAI } from './message-ai.js';
+import { ToolAI } from './tool-ai.js';
+import { ChunkAI } from './chunk-ai.js';
+import { LLMModelConfiguration } from './llm-model-configuration.js';
 
 export abstract class LLMAdapter {
     constructor(

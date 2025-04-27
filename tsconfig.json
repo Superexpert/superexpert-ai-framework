@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "module": "esnext",          // emit native import/export
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "es2019",
     "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": false,
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
   "include": ["src/**/*"]
 }

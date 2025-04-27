@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
-import { MessageAI } from './message-ai';
-import { ClientTaskDefinition } from './client-task-definition';
+import { MessageAI } from './message-ai.js';
+import { ClientTaskDefinition } from './client-task-definition.js';
 
 export type ShowModalType = (
     ContentComponent: (props: {
