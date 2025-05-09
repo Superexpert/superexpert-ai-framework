@@ -4,6 +4,7 @@ import { LLMAdapter } from "./llm-adapter.js";
 import { MessageAI } from "./message-ai.js";
 import { ClientToolContext } from "./client-tool-context.js";
 import { PrismaClient } from "@prisma/client";
+import { CorpusQueryResult } from "./corpus-query-result.js";
 
 interface ToolParameter {
   name: string;
@@ -303,12 +304,22 @@ export function getLLM(id: string): LLM | undefined {
  * Register Retrieval-Augmented Generation Strategies.
  */
 
+export interface RAGStrategyContext {
+  userId: string,
+  corpusIds: string[],
+  query: string,
+  limit: number,
+  similarityThreshold: number
+  db: PrismaClient;
+}
+
+
 export interface RAGStrategy {
   id: string;
   name: string;
   category?: string; // Optional category for sorting
   description: string;
-  function: (message: string) => string; 
+  function: (this:RAGStrategyContext, message: string) => Promise<CorpusQueryResult[]>; 
 }
 
 const registeredRAGStrategies: Record<string, RAGStrategy> = {};

@@ -1,5 +1,6 @@
 export { ClientToolContext } from "./client-tool-context.js";
 export { ClientTaskDefinition } from "./client-task-definition.js";
+export { CorpusQueryResult } from "./corpus-query-result.js";
 export {
   registerServerTool,
   getServerTools,
@@ -30,7 +31,9 @@ export {
   registerRAGStrategy,
   getRAGStrategies,
   getRAGStrategiesList,
+  RAGStrategyContext,
   getRAGStrategy,
+
 
 } from "./plugin-registry.js";
 export { MessageAI } from "./message-ai.js";
