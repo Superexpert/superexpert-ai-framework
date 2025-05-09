@@ -323,5 +323,15 @@ export function getRAGStrategies() {
 
 export function getRAGStrategiesList() {
   return Object.values(registeredRAGStrategies)
+    .map((strategy) => ({
+      id: strategy.id,
+      category: strategy.category,
+      name: strategy.name,
+      description: strategy.description,
+    }))
     .sort(sortTools); // Sort the tools by category and id
+}
+
+export function getRAGStrategy(id: string): RAGStrategy | undefined {
+  return registeredRAGStrategies[id];
 }

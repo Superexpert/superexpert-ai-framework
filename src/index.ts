@@ -30,6 +30,7 @@ export {
   registerRAGStrategy,
   getRAGStrategies,
   getRAGStrategiesList,
+  getRAGStrategy,
 
 } from "./plugin-registry.js";
 export { MessageAI } from "./message-ai.js";
