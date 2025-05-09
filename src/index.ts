@@ -26,6 +26,11 @@ export {
   registerLLM,
   getLLM,
   getLLMDefinitions,
+
+  registerRAGStrategy,
+  getRAGStrategies,
+  getRAGStrategiesList,
+
 } from "./plugin-registry.js";
 export { MessageAI } from "./message-ai.js";
 export { ToolCall } from "./tool-call.js";

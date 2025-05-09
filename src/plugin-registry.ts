@@ -22,8 +22,8 @@ interface ToolParameter {
 }
 
 const sortTools = (
-  a: { id: string; category: string | undefined },
-  b: { id: string; category: string | undefined }
+  a: { id: string; category?: string },
+  b: { id: string; category?: string }
 ) => {
   // Define the order for categories
   const categoryOrder = (category?: string) => {
@@ -306,12 +306,22 @@ export function getLLM(id: string): LLM | undefined {
 export interface RAGStrategy {
   id: string;
   name: string;
+  category?: string; // Optional category for sorting
   description: string;
   function: (message: string) => string; 
 }
 
 const registeredRAGStrategies: Record<string, RAGStrategy> = {};
 
+export function registerRAGStrategy(strategy: RAGStrategy) {
+  registeredRAGStrategies[strategy.id] = strategy;
+}
+
 export function getRAGStrategies() {
   return registeredRAGStrategies;
+}
+
+export function getRAGStrategiesList() {
+  return Object.values(registeredRAGStrategies)
+    .sort(sortTools); // Sort the tools by category and id
 }
