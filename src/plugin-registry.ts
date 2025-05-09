@@ -296,3 +296,22 @@ export function getLLMDefinitions() {
 export function getLLM(id: string): LLM | undefined {
   return registeredLLMs[id];
 }
+
+/************
+ * RAG Strategies
+ *
+ * Register Retrieval-Augmented Generation Strategies.
+ */
+
+export interface RAGStrategy {
+  id: string;
+  name: string;
+  description: string;
+  function: (message: string) => string; 
+}
+
+const registeredRAGStrategies: Record<string, RAGStrategy> = {};
+
+export function getRAGStrategies() {
+  return registeredRAGStrategies;
+}
