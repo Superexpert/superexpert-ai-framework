@@ -319,7 +319,7 @@ export interface RAGStrategy {
   name: string;
   category?: string; // Optional category for sorting
   description: string;
-  function: (this:RAGStrategyContext, message: string) => Promise<CorpusQueryResult[]>; 
+  function: (this:RAGStrategyContext) => Promise<CorpusQueryResult[]>; 
 }
 
 const registeredRAGStrategies: Record<string, RAGStrategy> = {};
