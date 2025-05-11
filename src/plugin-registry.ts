@@ -5,6 +5,7 @@ import { MessageAI } from "./message-ai.js";
 import { ClientToolContext } from "./client-tool-context.js";
 import { PrismaClient } from "@prisma/client";
 import { CorpusQueryResult } from "./corpus-query-result.js";
+import { getServerLogger } from "./logger.js";
 
 interface ToolParameter {
   name: string;
@@ -280,7 +281,8 @@ export interface LLM {
   definition: LLMModelDefinition;
   adapter: new (
     modelId: string,
-    modelConfiguration?: LLMModelConfiguration
+    modelConfiguration: LLMModelConfiguration | undefined,
+    log: ReturnType<typeof getServerLogger>,
   ) => LLMAdapter;
 }
 
