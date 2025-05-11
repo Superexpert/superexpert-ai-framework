@@ -21,14 +21,11 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
-      "browser": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
     "./server": {
       "import": "./dist/server.js",
-      "require": "./dist/server.cjs",
-      "types": "./dist/server.d.ts"
+      "require": "./dist/server.cjs"
     }
   },
   "files": [
@@ -49,7 +46,6 @@
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
-    "pino": "^9.6.0",
     "react": "^19.0.0",
     "reflect-metadata": "^0.2.2",
     "rimraf": "^6.0.1",

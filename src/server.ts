@@ -1,1 +1,1 @@
-export { baseLog, logStream } from './logger.js';
+export { getServerLogger, logStream } from './logger.js';
