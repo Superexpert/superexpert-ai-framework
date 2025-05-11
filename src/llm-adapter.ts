@@ -5,12 +5,10 @@ import { LLMModelConfiguration } from './llm-model-configuration.js';
 import { getServerLogger } from './logger.js';
 
 export abstract class LLMAdapter {
-  /** every adapter gets its own child logger                                  */
-  protected readonly log = getServerLogger({ component: 'llm-adapter' });
-
   constructor(
     public modelId: string,
-    public modelConfiguration?: LLMModelConfiguration,
+    public modelConfiguration: LLMModelConfiguration | undefined,
+    protected readonly log: ReturnType<typeof getServerLogger>
   ) {}
 
   /* abstract hooks ---------------------------------------------------------- */
