@@ -31,12 +31,6 @@ export abstract class LLMAdapter {
   ): AsyncGenerator<T> {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        if (attempt > 0) {
-          this.log.info(
-            'retry succeeded',
-            { attempt, modelId: this.modelId },
-          );
-        }
         /* delegate to caller’s async-generator and yield chunks */
         yield* await operation();
         return;
