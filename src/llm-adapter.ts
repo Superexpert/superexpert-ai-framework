@@ -1,53 +1,67 @@
 import { MessageAI } from './message-ai.js';
-import { ToolAI } from './tool-ai.js';
-import { ChunkAI } from './chunk-ai.js';
+import { ToolAI }     from './tool-ai.js';
+import { ChunkAI }    from './chunk-ai.js';
 import { LLMModelConfiguration } from './llm-model-configuration.js';
+import { getServerLogger } from './logger.js';
 
 export abstract class LLMAdapter {
-    constructor(
-        public modelId: string,
-        public modelConfiguration?: LLMModelConfiguration
-    ) {}
+  /** every adapter gets its own child logger                                  */
+  protected readonly log = getServerLogger({ component: 'llm-adapter' });
 
-    // Map input messages to the format required by the LLM
-    public abstract mapMessages(inputMessages: MessageAI[]): unknown[];
+  constructor(
+    public modelId: string,
+    public modelConfiguration?: LLMModelConfiguration,
+  ) {}
 
-    // Map tools to the format required by the LLM
-    public abstract mapTools(inputTools: ToolAI[]): unknown[];
+  /* abstract hooks ---------------------------------------------------------- */
+  public abstract mapMessages(input: MessageAI[]): unknown[];
+  public abstract mapTools   (input: ToolAI[]):  unknown[];
 
-    public abstract generateResponse(
-        instructions: string,
-        inputMessages: MessageAI[],
-        tools: ToolAI[],
-        options?: object
-    ): AsyncGenerator<ChunkAI>;
+  public abstract generateResponse(
+    instructions: string,
+    messages: MessageAI[],
+    tools: ToolAI[],
+    options?: object,
+  ): AsyncGenerator<ChunkAI>;
 
-    protected async *retryWithBackoff<T>(
-        operation: () => Promise<AsyncGenerator<T, any, any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
-        maxRetries: number = 3
-    ): AsyncGenerator<T> {
-        let retries = 0;
-
-        while (retries <= maxRetries) {
-            try {
-                //console.log(`Attempt ${retries + 1}/${maxRetries + 1}`);
-
-                // Call the operation and yield its results
-                yield* await operation();
-                return;
-            } catch (error) {
-                console.error(`Error on attempt ${retries + 1}:`, error);
-
-                if (++retries > maxRetries) {
-                    //console.error('Maximum retries reached.');
-                    throw error;
-                }
-
-                //console.log(`Retrying in ${retries * 1000}ms...`);
-                await new Promise((resolve) =>
-                    setTimeout(resolve, retries * 1000)
-                ); // Exponential backoff
-            }
+  /* ------------------------------------------------------------------------ */
+  /* retryWithBackoff – warns on transient failures, errors on final failure  */
+  /* ------------------------------------------------------------------------ */
+  protected async *retryWithBackoff<T>(
+    operation: () => Promise<AsyncGenerator<T>>,
+    maxRetries = 3,
+  ): AsyncGenerator<T> {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          this.log.info(
+            'retry succeeded',
+            { attempt, modelId: this.modelId },
+          );
         }
+        /* delegate to caller’s async-generator and yield chunks */
+        yield* await operation();
+        return;
+      } catch (err) {
+        const delay = (attempt + 1) * 1000;   // 1 s, 2 s, 3 s …
+
+        if (attempt < maxRetries) {
+          /* warn, but don’t raise alarm */
+          this.log.warn(
+            `LLM call failed – will retry (${attempt+1}/${maxRetries})`,
+            { err: { message: (err as Error).message }, attempt, delay },
+          );
+          await new Promise(r => setTimeout(r, delay));
+          continue;                           // next loop iteration
+        }
+
+        /* final failure → escalate to error */
+        this.log.error(
+            err as Error,
+            'LLM call exhausted retries',
+        );
+        throw err;  // bubble to caller
+      }
     }
+  }
 }
