@@ -2,7 +2,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts',  'src/server.ts'],
   format: ['esm', 'cjs'],   // dual-output
   dts: true,                // generate dist/index.d.ts
   outDir: 'dist',
