@@ -28,31 +28,18 @@ export function getServerLogger(bindings: LogMeta = {}) {
 
   /* public API */
   return {
-    /** create a child logger that inherits current bindings */
-    child(extra: LogMeta) {
-      return getServerLogger({ ...bindings, ...extra });
-    },
-
-    info(msg: string, meta: Record<string, unknown> = {}) {
-      write('info', msg, meta);
-    },
-
-    warn(msg: string, meta: Record<string, unknown> = {}) {
-      write('warn', msg, meta);
-    },
-
+    child(extra: LogMeta) { return getServerLogger({ ...bindings, ...extra }); },
+    info (msg: string, meta: Record<string, unknown> = {}) { write('info',  msg, meta); },
+    warn (msg: string, meta: Record<string, unknown> = {}) { write('warn',  msg, meta); },
     error(err: Error, msg = '') {
-      write('error', msg || err.message, {
-        err: { message: err.message },
-      });
+      write('error', msg || err.message, { err: { message: err.message } });
     },
 
-    /** await until every queued write has drained  */
+    /** new flush: waits, but emits **no** dummy row */
     flush(): Promise<void> {
       return new Promise((res) => {
-        // PassThrough#write is sync, but listeners run async;
-        // using setImmediate guarantees they’ve had a chance to finish.
-        logStream.write('', () => setImmediate(res));
+        if (logStream.writableLength === 0) return res();     // already drained
+        logStream.once('drain', res);                         // wait for listeners
       });
     },
   };
