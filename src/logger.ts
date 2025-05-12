@@ -1,20 +1,59 @@
-export interface LogMeta { userId?: string; agentId?: string; component?: string }
+import { PassThrough } from 'stream';
 
+export interface LogMeta {
+  userId?: string;
+  agentId?: string;
+  component?: string;
+}
+
+/** single in-memory bus (stdout → listeners → DB) */
+export const logStream = new PassThrough({ objectMode: true });
+
+/** factory  ─────────────────────────────────────────────────────────────── */
 export function getServerLogger(bindings: LogMeta = {}) {
-  const write = (level: string, msg: string, meta: Record<string, unknown>) => {
+  /* internal write helper */
+  const write = (
+    level: string,
+    msg: string,
+    meta: Record<string, unknown>,
+  ) => {
     const line = { time: Date.now(), level, msg, ...bindings, ...meta };
-    console.log(JSON.stringify(line));          // 1️⃣ goes to stdout
-    logStream.write(line);                      // 2️⃣ goes to Postgres listener
+
+    /* 1️⃣  terminal / Vercel */
+    console.log(JSON.stringify(line));
+
+    /* 2️⃣  fan-out to Postgres listener */
+    logStream.write(line);
   };
+
+  /* public API */
   return {
-    child(extra: LogMeta) { return getServerLogger({ ...bindings, ...extra }); },
-    info(msg: string, meta = {})  { write('info',  msg, meta); },
-    warn(msg: string, meta = {})  { write('warn',  msg, meta); },
-    error(err: Error, msg = '')   {
-      write('error', msg || err.message, { err: { message: err.message } });
+    /** create a child logger that inherits current bindings */
+    child(extra: LogMeta) {
+      return getServerLogger({ ...bindings, ...extra });
+    },
+
+    info(msg: string, meta: Record<string, unknown> = {}) {
+      write('info', msg, meta);
+    },
+
+    warn(msg: string, meta: Record<string, unknown> = {}) {
+      write('warn', msg, meta);
+    },
+
+    error(err: Error, msg = '') {
+      write('error', msg || err.message, {
+        err: { message: err.message },
+      });
+    },
+
+    /** await until every queued write has drained  */
+    flush(): Promise<void> {
+      return new Promise((res) => {
+        // PassThrough#write is sync, but listeners run async;
+        // using setImmediate guarantees they’ve had a chance to finish.
+        logStream.write('', () => setImmediate(res));
+      });
     },
   };
 }
-
-import { PassThrough } from 'stream';
-export const logStream = new PassThrough({ objectMode: true });
