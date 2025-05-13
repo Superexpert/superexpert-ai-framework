@@ -1,4 +1,4 @@
-import { PassThrough } from 'stream';
+import { PassThrough } from "stream";
 
 export interface LogMeta {
   userId?: string;
@@ -12,11 +12,7 @@ export const logStream = new PassThrough({ objectMode: true });
 /* ────────────────────────────────────────────────────────────────────────── */
 export function getServerLogger(bindings: LogMeta = {}) {
   /*  internal helper  */
-  const write = (
-    level: string,
-    msg: string,
-    meta: Record<string, unknown>,
-  ) => {
+  const write = (level: string, msg: string, meta: Record<string, unknown>) => {
     const line = { time: Date.now(), level, msg, ...bindings, ...meta };
 
     /* 1️⃣ stdout → Terminal & Vercel */
@@ -33,13 +29,13 @@ export function getServerLogger(bindings: LogMeta = {}) {
     },
 
     info(msg: string, meta: Record<string, unknown> = {}) {
-      write('info', msg, meta);
+      write("info", msg, meta);
     },
     warn(msg: string, meta: Record<string, unknown> = {}) {
-      write('warn', msg, meta);
+      write("warn", msg, meta);
     },
-    error(err: Error, msg = '') {
-      write('error', msg || err.message, {
+    error(err: Error, msg = "") {
+      write("error", msg || err.message, {
         err: { message: err.message },
       });
     },
@@ -47,11 +43,11 @@ export function getServerLogger(bindings: LogMeta = {}) {
     /** waits until everything already written has reached the listeners */
     flush(): Promise<void> {
       return new Promise((res) => {
-        /* write a dummy row the listener will ignore */
-        logStream.write({ __skipDb: true }, () => {
-          // resolves when the dummy row is flushed → all previous writes delivered
-          res();
-        });
+        /* ① nothing buffered → resolve on next micro-task */
+        if (logStream.writableLength === 0) return setImmediate(res);
+
+        /* ② when the buffer drains we’re sure all listeners have seen the row   */
+        logStream.once("drain", () => setImmediate(res));
       });
     },
   };
