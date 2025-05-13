@@ -1,1 +1,1 @@
-export { getServerLogger, logStream } from './logger.js';
+export { LoggerContract } from './logger-contract.js';

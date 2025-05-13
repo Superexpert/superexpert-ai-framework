@@ -2,13 +2,13 @@ import { MessageAI } from './message-ai.js';
 import { ToolAI }     from './tool-ai.js';
 import { ChunkAI }    from './chunk-ai.js';
 import { LLMModelConfiguration } from './llm-model-configuration.js';
-import { getServerLogger } from './logger.js';
+import { LoggerContract } from './logger-contract.js';
 
 export abstract class LLMAdapter {
   constructor(
     public modelId: string,
     public modelConfiguration: LLMModelConfiguration | undefined,
-    protected readonly log: ReturnType<typeof getServerLogger>
+    protected log: LoggerContract,
   ) {}
 
   /* abstract hooks ---------------------------------------------------------- */
