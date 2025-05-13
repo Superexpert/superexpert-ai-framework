@@ -6,12 +6,12 @@ export interface LogMeta {
   component?: string;
 }
 
-/** single in-memory bus (stdout → listeners → DB) */
+/* single in-memory bus */
 export const logStream = new PassThrough({ objectMode: true });
 
-/** factory  ─────────────────────────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────────────────────── */
 export function getServerLogger(bindings: LogMeta = {}) {
-  /* internal write helper */
+  /*  internal helper  */
   const write = (
     level: string,
     msg: string,
@@ -19,27 +19,39 @@ export function getServerLogger(bindings: LogMeta = {}) {
   ) => {
     const line = { time: Date.now(), level, msg, ...bindings, ...meta };
 
-    /* 1️⃣  terminal / Vercel */
+    /* 1️⃣ stdout → Terminal & Vercel */
     console.log(JSON.stringify(line));
 
-    /* 2️⃣  fan-out to Postgres listener */
+    /* 2️⃣ push for any sinks (DB listener, Datadog, etc.) */
     logStream.write(line);
   };
 
-  /* public API */
+  /*  public API  */
   return {
-    child(extra: LogMeta) { return getServerLogger({ ...bindings, ...extra }); },
-    info (msg: string, meta: Record<string, unknown> = {}) { write('info',  msg, meta); },
-    warn (msg: string, meta: Record<string, unknown> = {}) { write('warn',  msg, meta); },
-    error(err: Error, msg = '') {
-      write('error', msg || err.message, { err: { message: err.message } });
+    child(extra: LogMeta) {
+      return getServerLogger({ ...bindings, ...extra });
     },
 
-    /** new flush: waits, but emits **no** dummy row */
+    info(msg: string, meta: Record<string, unknown> = {}) {
+      write('info', msg, meta);
+    },
+    warn(msg: string, meta: Record<string, unknown> = {}) {
+      write('warn', msg, meta);
+    },
+    error(err: Error, msg = '') {
+      write('error', msg || err.message, {
+        err: { message: err.message },
+      });
+    },
+
+    /** waits until everything already written has reached the listeners */
     flush(): Promise<void> {
       return new Promise((res) => {
-        if (logStream.writableLength === 0) return res();     // already drained
-        logStream.once('drain', res);                         // wait for listeners
+        /* write a dummy row the listener will ignore */
+        logStream.write({ __skipDb: true }, () => {
+          // resolves when the dummy row is flushed → all previous writes delivered
+          res();
+        });
       });
     },
   };
