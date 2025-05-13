@@ -106,6 +106,7 @@ export interface ServerToolContext {
   user: { id: string; now: Date; timeZone: string };
   agent: { id: string; name: string };
   db: PrismaClient;
+  log: LoggerContract;
 }
 
 export function callServerTool(
@@ -165,6 +166,7 @@ export interface ContextToolContext {
   agent: { id: string; name: string };
   messages: MessageAI[];
   db: PrismaClient;
+  log: LoggerContract;
 }
 
 export function callContextTool(
