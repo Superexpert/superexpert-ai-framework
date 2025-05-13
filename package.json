@@ -1,6 +1,6 @@
 {
   "name": "@superexpert-ai/framework",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Platform classes for creating Superexpert.AI plugins",
   "keywords": [
     "superexpert-ai"
