@@ -43,11 +43,17 @@ export function getServerLogger(bindings: LogMeta = {}) {
     /** waits until everything already written has reached the listeners */
     flush(): Promise<void> {
       return new Promise((res) => {
-        /* ① nothing buffered → resolve on next micro-task */
-        if (logStream.writableLength === 0) return setImmediate(res);
+        const waitDb = () => {
+          const ls = logStream as typeof logStream & { __pending?: number };
+          if (!ls.__pending) return res(); // no inserts in flight
+          ls.once("db-drain", res); // wait for listener
+        };
 
-        /* ② when the buffer drains we’re sure all listeners have seen the row   */
-        logStream.once("drain", () => setImmediate(res));
+        if (logStream.writableLength === 0) {
+          waitDb(); // nothing buffered
+        } else {
+          logStream.once("drain", waitDb); // wait for stream → then DB
+        }
       });
     },
   };
